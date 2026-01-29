@@ -6,3 +6,7 @@ A physics simulation visualizing electrostatic forces between charged particles,
 
 - C compiler (gcc, clang, etc.)
 - [raylib](https://www.raylib.com/) library
+
+## License
+
+MIT License - feel free to use and modify!
