@@ -4,14 +4,14 @@
 #include <time.h>
 #include <math.h>
 
-#define WIDTH 800
+#define WIDTH 900
 #define HEIGHT 600
 #define FPS 30
-#define MAX_CHARGES 5
+#define MAX_CHARGES 10
 #define CHARGE_RADIUS 10
-#define CONST_K 900000.0f
+#define CONST_K 90000.0f
 #define CHARGE_MASS 0.9f 
-#define DAMPING 0.98f 
+#define DAMPING 0.981f 
 
 typedef struct {
   float x; 
@@ -41,6 +41,7 @@ int main() {
     Vector vel = { 0.0f, 0.0f };
     Vector frc = { 0.0f, 0.0f };
     float charge = (GetRandomValue(0, 1) == 0) ? -1.0f : 1.0f;
+    //float charge = 1.0f; 
     Color col = (charge > 0) ? RED : BLUE; 
     charges[i] = CreateCharge(pos, vel, frc, charge, col); 
   }
@@ -88,13 +89,15 @@ void CoulombsLaw(Charge *charges) {
     for (size_t j = i + 1; j < MAX_CHARGES; j++) {
       float dx = charges[j].position.x - charges[i].position.x; 
       float dy = charges[j].position.y - charges[i].position.y; 
-      
+
       float distance = (float)sqrt((double)(dx*dx + dy*dy)); 
       
-      /*avoid division by zero*/
-      if (distance < 5) distance = 9999;
+      /*avoid division by zero and bizarre forces*/
+      if (distance < 2.0f * CHARGE_RADIUS) distance = 2.0f * CHARGE_RADIUS;
+      
+      if (distance > 300.0f) continue;     
 
-      /*unit vectors*/ 
+      /*unit vector*/ 
       float ux = dx / distance; 
       float uy = dy / distance; 
       
@@ -104,12 +107,10 @@ void CoulombsLaw(Charge *charges) {
       float fy = forceMagnitude * uy; 
      
       /*same intensity but opposite directions*/
-      charges[i].force.x += fx;
-      charges[i].force.y += fy;
-      charges[j].force.x -= fx; 
-      charges[j].force.y -= fy; 
-
-      printf("fx: %.3f\nfy: %.3f\n", fx, fy);
+      charges[i].force.x -= fx;
+      charges[i].force.y -= fy;
+      charges[j].force.x += fx; 
+      charges[j].force.y += fy; 
     }
   }
 }
