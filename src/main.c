@@ -7,7 +7,7 @@
 #define WIDTH 900
 #define HEIGHT 600
 #define FPS 30
-#define MAX_CHARGES 10
+#define MAX_CHARGES 100
 #define CHARGE_RADIUS 10
 #define CONST_K 90000.0f
 #define CHARGE_MASS 0.9f 
