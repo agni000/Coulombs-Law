@@ -12,6 +12,16 @@ and then find the acceleration, velocity and position.
 - C compiler (gcc)
 - [raylib](https://www.raylib.com/) library
 
+## Build and Run 
+
+Clone the repo and use the provided makefile: 
+
+```text
+make build run 
+```
+
+The executable will be generated inside the bin/ directory.
+
 ## License
 
 MIT License - feel free to use and modify!
