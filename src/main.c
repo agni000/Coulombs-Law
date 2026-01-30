@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <raylib.h>
-#include <time.h>
 #include <math.h>
 
 #define WIDTH 900
