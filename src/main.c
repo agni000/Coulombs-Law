@@ -5,12 +5,14 @@
 
 #define WIDTH 900
 #define HEIGHT 600
-#define FPS 30
-#define MAX_CHARGES 150
+#define FPS 60
+#define MAX_CHARGES 200
 #define CHARGE_RADIUS 10
 #define CONST_K 90000.0f
-#define CHARGE_MASS 0.9f 
-#define DAMPING 0.981f 
+#define CHARGE_MASS 0.9f
+#define DAMPING 0.981f
+#define MAX_DISTANCE 500.0f
+#define MOUSE_IMPULSE 250000.0f
 
 typedef struct {
   float x; 
@@ -28,6 +30,7 @@ typedef struct {
 Charge CreateCharge(Vector pos, Vector vel, Vector frc, float chr, Color col);
 void CoulombsLaw(Charge *charges);
 void UpdateCharges(Charge *charges, float dt); 
+void radialExplosion(Charge *charges, Vector mousePos); 
 
 int main() {
   InitWindow(WIDTH, HEIGHT, "Coulomb's Law");
@@ -53,6 +56,11 @@ int main() {
     ClearBackground(RAYWHITE);
     for (size_t i = 0; i < MAX_CHARGES; i++) {
       DrawCircle(charges[i].position.x, charges[i].position.y, CHARGE_RADIUS, charges[i].color);
+    }
+    
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+      Vector clickPos = { GetMouseX(), GetMouseY()};  
+      radialExplosion(charges, clickPos); 
     }
 
     DrawFPS(10, 10);
@@ -92,9 +100,9 @@ void CoulombsLaw(Charge *charges) {
       float distance = (float)sqrt((double)(dx*dx + dy*dy)); 
       
       /*avoid division by zero and bizarre forces*/
-      if (distance < 2.0f * CHARGE_RADIUS) distance = 2.0f * CHARGE_RADIUS;
+      if (distance < 3.0f * CHARGE_RADIUS) distance = 3.0f * CHARGE_RADIUS;
       
-      if (distance > 300.0f) continue;     
+      if (distance > MAX_DISTANCE) continue;     
 
       /*unit vector*/ 
       float ux = dx / distance; 
@@ -143,5 +151,24 @@ void UpdateCharges(Charge *charges, float dt) {
         charges[i].velocity.y *= -0.8f;
         charges[i].position.y = (charges[i].position.y < CHARGE_RADIUS) ? CHARGE_RADIUS : HEIGHT - CHARGE_RADIUS;
     }
+  }
+}
+
+void radialExplosion(Charge *charges, Vector mousePos) {
+  for (size_t i = 0; i < MAX_CHARGES; i++) {
+    float dx = charges[i].position.x - mousePos.x; 
+    float dy = charges[i].position.y - mousePos.y; 
+
+    float distance = (float)sqrt((double)(dx*dx + dy*dy));
+
+    /* avoid division by zero and bizarre forces */
+    if (distance < 3.0f * CHARGE_RADIUS) distance = 3.0f * CHARGE_RADIUS;   
+    
+    /* add inverse square law to impulse */
+    float impulse = MOUSE_IMPULSE / (distance * distance); 
+
+    /* impulse = (mass * dv) then dv = (impulse / mass) */
+    charges[i].velocity.x += (dx / distance) * (impulse / CHARGE_MASS);
+    charges[i].velocity.y += (dy / distance) * (impulse / CHARGE_MASS);
   }
 }
